@@ -32,7 +32,8 @@ router.get("/:app/:file", (req, res) => {
 		res.writeHead(206, {
 			"Content-Range": `bytes ${start}-${end}/*`,
 			"Accept-Range": "bytes",
-			"Content-Length": end - start + 1
+			"Content-Length": end - start + 1,
+			"Content-Type": "multipart/byteranges"
 		})
 		rangeFile.pipe(res);
 		return;
