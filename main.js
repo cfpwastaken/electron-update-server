@@ -1,21 +1,31 @@
 import express from "express";
-import { createReadStream, existsSync, statSync } from "fs";
+import { createReadStream } from "fs";
+import { stat } from "fs/promises";
 import { join } from "path";
 
 const app = express();
 const router = express.Router();
 
-router.get("/:app/:file", (req, res) => {
-	if(!existsSync(join("apps", req.params.app))) {
+async function exists(f) {
+  try {
+    await stat(f);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+router.get("/:app/:file", async (req, res) => {
+	if(!await exists(join("apps", req.params.app))) {
 		res.status(404).json({ status: { success: false, message: "App " + req.params.app + " does not exist" } }).send();
 		return;
 	}
-	if(!existsSync(join("apps", req.params.app, req.params.file))) {
+	if(!await exists(join("apps", req.params.app, req.params.file))) {
 		res.status(404).json({ status: { success: false, message: "File " + req.params.file + " does not exist" }}).send();
 		return;
 	}
 	const range = req.headers.range;
-	const length = statSync(join("apps", req.params.app, req.params.file)).size;
+	const length = await stat(join("apps", req.params.app, req.params.file)).size;
 	
 	if(range) {
 		const parts = range.replace(/bytes=/, "").split("-");
