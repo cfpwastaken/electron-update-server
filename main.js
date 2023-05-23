@@ -25,7 +25,7 @@ router.get("/:app/:file", async (req, res) => {
 		return;
 	}
 	const range = req.headers.range;
-	const length = await stat(join("apps", req.params.app, req.params.file)).size;
+	const length = (await stat(join("apps", req.params.app, req.params.file))).size;
 	
 	if(range) {
 		const parts = range.replace(/bytes=/, "").split("-");
